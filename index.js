@@ -43,21 +43,31 @@ const broadcastTransaction = (node, data, testnet) => {
     if (testnet == undefined || testnet == false)
         nethash = 'ed14889723f24ecc54871d058d98ce91ff2f973192075c0155ba2b7b70ad2511';
 
-    return request.post ({
-        uri: node + '/peer/transactions/',
-        headers: {
-            version: '0.8.2',
-            nethash: nethash,
-            port: '1'
-        },
-        body: data,
-        json: true
+    //console.log (data);
+
+    return new Promise ((resolve, reject) => {
+        setTimeout (() => {
+            console.log ('Broadcasting in progress, please wait...');
+
+            request.post ({
+                uri: node + '/peer/transactions/',
+                headers: {
+                    version: '0.8.2',
+                    nethash: nethash,
+                    port: '1',
+                    'Content-Type': 'application/json'
+                },
+                body: { transaction: data },
+                json: true
+            }).then (resolve).catch (reject);
+        }, 20000);
     });
 };
 
 
 const getDelegate = (node, name) => {
     return new Promise ((resolve, reject) => {
+        console.log ('getting delegate');
         request.get ({
             uri: node + '/api/delegates/get?username=' + name,
             json: true
@@ -82,25 +92,28 @@ let pr = program.version('0.4.0')
     .option ('-ss, --secondseed <seed>', 'pass the second seed from command line');
 
 
-let testnet = pr.testnet || false;
-let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
-let lsk = lisk.api({testnet: testnet});
-
 
 /* Send lisk */ 
 pr.command ('send <amount> <destination>').action ((amount, destination) => {
+    let testnet = pr.testnet || false;
+    let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
+    let lsk = lisk.api ({testnet: testnet});
+
     let am = parseFloat (amount) * Math.pow(10, 8);
 
     console.log (`Sending ${am} to ${destination} (testnet: ${testnet})`);
 
     secretInput ('Insert your secret: ', pr.seed)
     .then (secret => {
-        let tx = lsk.transaction.createTransaction (destination, am, secret);
+        let tx = lisk.transaction.createTransaction (destination, am, secret);
 
-        console.log ('tx', tx);
         broadcastTransaction (node, tx, testnet)
         .then (d => {
-            console.log (d);
+            if (d.success)
+                console.log (`Sent! Txid: ${tx.id}`);
+            else
+                console.log (`Failed to send: ${d.message}`);
+
             process.exit (0);
         })
         .catch (err => {
@@ -116,6 +129,10 @@ pr.command ('send <amount> <destination>').action ((amount, destination) => {
 
 /* Vote delegate */
 pr.command ('vote <delegates...>').action (delegates => {
+    let testnet = pr.testnet || false;
+    let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
+    let lsk = lisk.api ({testnet: testnet});
+
     secretInput ('Insert your secret: ', pr.seed)
     .then (secret => {
         let keys = lisk.crypto.getKeys (secret);
@@ -136,27 +153,29 @@ pr.command ('vote <delegates...>').action (delegates => {
 
             /* Get the delegates publicKeys */
             var prms = [];
-            delegates.forEach (del => { prms.push (getDelegate (del)); });
+            delegates.forEach (del => { prms.push (getDelegate (node, del)); });
 
             Promise.all (prms)
             .then (dels => {
-                console.log (dels);
                 let list = dels.map (del => { return '+' + del.publicKey; });
-                let tx = lsk.transaction.createVote (secret, list);
+                let tx = lisk.vote.createVote (secret, list);
 
-                console.log ('tx', tx);
                 broadcastTransaction (node, tx, testnet)
                 .then (d => {
-                    console.log ('asd', d);
+                    if (d.success)
+                        console.log (`Sent! Txid: ${tx.id}`);
+                    else
+                        console.log (`Failed to send: ${d.message}`);
                     process.exit (0);
                 })
                 .catch (err => {
                     console.log (`Error: ${err}`);
                     process.exit (0);
                 });
+            })
+            .catch (err => {
+                console.log (err);
             });
-
-            process.exit (0);
         }).catch (err => {
             console.log (`Error: ${err}`);
             process.exit (0);
@@ -166,6 +185,10 @@ pr.command ('vote <delegates...>').action (delegates => {
 
 /* Unvote delegate */
 pr.command ('unvote <delegates...>').action (delegates => {
+    let testnet = pr.testnet || false;
+    let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
+    let lsk = lisk.api ({testnet: testnet});
+
     secretInput ('Insert your secret: ', pr.seed)
     .then (secret => {
         let keys = lisk.crypto.getKeys (secret);
@@ -186,26 +209,29 @@ pr.command ('unvote <delegates...>').action (delegates => {
 
             /* Get the delegates publicKeys */
             var prms = [];
-            delegates.forEach (del => { prms.push (getDelegate (del)); });
+            delegates.forEach (del => { prms.push (getDelegate (node, del)); });
 
             Promise.all (prms)
             .then (dels => {
                 let list = dels.map (del => { return '-' + del.publicKey; });
-                let tx = lsk.transaction.createVote (secret, list);
+                let tx = lisk.vote.createVote (secret, list);
 
-                console.log ('tx', tx);
                 broadcastTransaction (node, tx, testnet)
                 .then (d => {
-                    console.log (d);
+                    if (d.success)
+                        console.log (`Sent! Txid: ${tx.id}`);
+                    else
+                        console.log (`Failed to send: ${d.message}`);
                     process.exit (0);
                 })
                 .catch (err => {
                     console.log (`Error: ${err}`);
                     process.exit (0);
                 });
+            })
+            .catch (err => {
+                console.log (err);
             });
-
-            process.exit (0);
         }).catch (err => {
             console.log (`Error: ${err}`);
             process.exit (0);
@@ -216,6 +242,10 @@ pr.command ('unvote <delegates...>').action (delegates => {
 
 /* Votes */
 pr.command ('votes <delegate>').action ((delegate) => {
+    let testnet = pr.testnet || false;
+    let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
+    let lsk = lisk.api ({testnet: testnet});
+
     getDelegate (node, delegate)
     .then (delob => {
         request.get ({
@@ -238,6 +268,10 @@ pr.command ('votes <delegate>').action ((delegate) => {
 
 /* Voters */
 pr.command ('voters <delegate>').action ((delegate) => {
+    let testnet = pr.testnet || false;
+    let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
+    let lsk = lisk.api ({testnet: testnet});
+
     getDelegate (node, delegate)
     .then (delob => {
         request.get ({
@@ -260,6 +294,10 @@ pr.command ('voters <delegate>').action ((delegate) => {
 
 /* Balance */
 pr.command ('balance <address>').action ((address) => {
+    let testnet = pr.testnet || false;
+    let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
+    let lsk = lisk.api ({testnet: testnet});
+
     request.get ({
         uri: node + '/api/accounts/getBalance?address=' + address,
         json: true
