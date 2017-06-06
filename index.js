@@ -65,7 +65,6 @@ pr.command ('send <amount> <destination>').action ((amount, destination) => {
     let testnet = pr.testnet || false;
     let node = pr.node || ('https://liskworld.info' ? testnet : 'https://testnet.lisk.io');
     var lsk = lisk.api({testnet: testnet});
-
     let am = parseFloat (amount) * Math.pow(10, 8);
 
     console.log (`Sending ${am} to ${destination} (testnet: ${testnet})`);
