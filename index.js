@@ -44,11 +44,10 @@ const broadcastTransaction = (node, data, testnet) => {
         nethash = 'ed14889723f24ecc54871d058d98ce91ff2f973192075c0155ba2b7b70ad2511';
 
     //console.log (data);
+    console.log ('Broadcasting in progress, please wait...');
 
     return new Promise ((resolve, reject) => {
         setTimeout (() => {
-            console.log ('Broadcasting in progress, please wait...');
-
             request.post ({
                 uri: node + '/peer/transactions/',
                 headers: {
@@ -60,7 +59,7 @@ const broadcastTransaction = (node, data, testnet) => {
                 body: { transaction: data },
                 json: true
             }).then (resolve).catch (reject);
-        }, 20000);
+        }, 60000);
     });
 };
 
