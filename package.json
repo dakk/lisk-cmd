@@ -1,0 +1,29 @@
+{
+  "name": "lisk-cmd",
+  "version": "0.4.0",
+  "description": "lisk command line helper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dakk/lisk-cmd.git"
+  },
+  "keywords": [
+    "lisk",
+    "crypto"
+  ],
+  "author": "Davide \"dakk\" Gessa (gessadavide@gmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dakk/lisk-cmd/issues"
+  },
+  "homepage": "https://github.com/dakk/lisk-cmd#readme",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "lisk-js": "^0.4.1",
+    "request-promise": "^4.2.1"
+  }
+}
