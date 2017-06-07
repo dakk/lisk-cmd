@@ -36,6 +36,21 @@ const secretInput = (query, seed) => {
 };
 
 
+const signOverride = (transaction, secret, secondSecret) => {
+    var keys = lisk.crypto.getKeys (secret);
+	transaction.senderPublicKey = keys.publicKey;
+
+    transaction.signature = undefined;
+	lisk.crypto.sign (transaction, keys);
+
+	if (secondSecret) {
+		var secondKeys = lisk.crypto.getKeys (secondSecret);
+		lisk.crypto.secondSign (transaction, secondKeys);
+	}
+
+	transaction.id = lisk.crypto.getId (transaction);
+	return transaction;
+};
 
 
 const broadcastTransaction = (node, data, testnet) => {
@@ -47,7 +62,7 @@ const broadcastTransaction = (node, data, testnet) => {
     console.log ('Broadcasting in progress, please wait...');
 
     return new Promise ((resolve, reject) => {
-        setTimeout (() => {
+        //setTimeout (() => {
             request.post ({
                 uri: node + '/peer/transactions/',
                 headers: {
@@ -59,7 +74,7 @@ const broadcastTransaction = (node, data, testnet) => {
                 body: { transaction: data },
                 json: true
             }).then (resolve).catch (reject);
-        }, 60000);
+        //}, 60000);
     });
 };
 
@@ -105,6 +120,8 @@ pr.command ('send <amount> <destination>').action ((amount, destination) => {
     secretInput ('Insert your secret: ', pr.seed)
     .then (secret => {
         let tx = lisk.transaction.createTransaction (destination, am, secret);
+        tx.timestamp -= 120;
+        tx = signOverride (tx, secret);
 
         broadcastTransaction (node, tx, testnet)
         .then (d => {
@@ -144,7 +161,7 @@ pr.command ('vote <delegates...>').action (delegates => {
             /* Check if already voted */
             data.delegates = data.delegates || [];
             data.delegates.forEach ((acc) => {
-                if (acc.username in delegates) {
+                if (delegates.indexOf (acc.username) != -1) {
                     console.log (`${acc.username} already voted, exiting`);
                     process.exit (0);
                 }
@@ -158,6 +175,8 @@ pr.command ('vote <delegates...>').action (delegates => {
             .then (dels => {
                 let list = dels.map (del => { return '+' + del.publicKey; });
                 let tx = lisk.vote.createVote (secret, list);
+                tx.timestamp -= 120;
+                tx = signOverride (tx, secret);
 
                 broadcastTransaction (node, tx, testnet)
                 .then (d => {
@@ -200,7 +219,7 @@ pr.command ('unvote <delegates...>').action (delegates => {
             /* Check if already voted */
             data.delegates = data.delegates || [];
             data.delegates.forEach ((acc) => {
-                if (! (acc.username in delegates)) {
+                if (delegates.indexOf (acc.username) == -1) {
                     console.log (`${acc.username} not voted, exiting`);
                     process.exit (0);
                 }
@@ -214,6 +233,8 @@ pr.command ('unvote <delegates...>').action (delegates => {
             .then (dels => {
                 let list = dels.map (del => { return '-' + del.publicKey; });
                 let tx = lisk.vote.createVote (secret, list);
+                tx.timestamp -= 120;
+                tx = signOverride (tx, secret);
 
                 broadcastTransaction (node, tx, testnet)
                 .then (d => {
