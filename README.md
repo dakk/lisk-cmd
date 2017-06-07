@@ -47,6 +47,8 @@ Get address balance
 
 ## Copyright
 
+This software is release under the MIT license.
+
 Created by Davide "dakk" Gessa; if you like this software please consider to vote for
 "dakk" delegate on Lisk, or send a donation to 2324852447570841050L. Also thanks to
 delegate "corsaro" for this idea.
