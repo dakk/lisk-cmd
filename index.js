@@ -81,7 +81,6 @@ const broadcastTransaction = (node, data, testnet) => {
 
 const getDelegate = (node, name) => {
     return new Promise ((resolve, reject) => {
-        console.log ('getting delegate');
         request.get ({
             uri: node + '/api/delegates/get?username=' + name,
             json: true
