@@ -1,6 +1,6 @@
 {
   "name": "lisk-cmd",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "lisk command line helper",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "dependencies": {
     "commander": "^2.9.0",
     "lisk-js": "^0.4.1",
+    "request": "^2.81.0",
     "request-promise": "^4.2.1"
   },
   "bin": {
