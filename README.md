@@ -1,5 +1,7 @@
 # Lisk-cmd
 A lisk command line client.
+Note that this software will sign transaction offline, broadcasting only 
+signed transaction (so there's no disclosure of secret).
 
 ## Install
 
