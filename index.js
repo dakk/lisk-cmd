@@ -102,8 +102,8 @@ let pr = program.version('0.4.0')
     .usage ('[options] <command> [args ...]')
     .option ('-t, --testnet', 'use testnet (mainnet is the default)')
     .option ('-n, --node <url>', 'set a custom node')
-    .option ('-s, --seed <seed>', 'pass seed from command line')
-    .option ('-ss, --secondseed <seed>', 'pass the second seed from command line');
+    .option ('-s, --seed <seed>', 'pass seed from command line between ""')
+    .option ('-ss, --secondseed <seed>', 'pass the second seed between ""');
 
 
 
@@ -119,7 +119,7 @@ pr.command ('send <amount> <destination>').action ((amount, destination) => {
 
     secretInput ('Insert your secret: ', pr.seed)
     .then (secret => {
-        let tx = lisk.transaction.createTransaction (destination, am, secret);
+        let tx = lisk.transaction.createTransaction (destination, am, secret, pr.secondsecret);
         tx.timestamp -= 120;
         tx = signOverride (tx, secret);
 
@@ -174,7 +174,7 @@ pr.command ('vote <delegates...>').action (delegates => {
             Promise.all (prms)
             .then (dels => {
                 let list = dels.map (del => { return '+' + del.publicKey; });
-                let tx = lisk.vote.createVote (secret, list);
+                let tx = lisk.vote.createVote (secret, list, pr.secondsecret);
                 tx.timestamp -= 120;
                 tx = signOverride (tx, secret);
 
@@ -232,7 +232,7 @@ pr.command ('unvote <delegates...>').action (delegates => {
             Promise.all (prms)
             .then (dels => {
                 let list = dels.map (del => { return '-' + del.publicKey; });
-                let tx = lisk.vote.createVote (secret, list);
+                let tx = lisk.vote.createVote (secret, list, pr.secondsecret);
                 tx.timestamp -= 120;
                 tx = signOverride (tx, secret);
 
