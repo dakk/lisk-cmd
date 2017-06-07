@@ -49,6 +49,8 @@ Get address balance
 
 This software is release under the MIT license.
 
-Created by Davide "dakk" Gessa; if you like this software please consider to vote for
-"dakk" delegate on Lisk, or send a donation to 2324852447570841050L. Also thanks to
-delegate "corsaro" for this idea.
+Created by Davide "dakk" Gessa from the LiskItalianGroup; if you like this software please 
+consider to vote for "dakk" delegate on Lisk, or send a donation to 2324852447570841050L. 
+Also thanks to delegate "corsaro" for this idea.
+
+Check other LIG projects at: http://liskitaliangroup.github.io/
