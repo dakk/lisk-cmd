@@ -97,7 +97,7 @@ const getDelegate = (node, name) => {
 
 
 
-let pr = program.version('0.4.0')
+let pr = program.version('0.4.2')
     .usage ('[options] <command> [args ...]')
     .option ('-t, --testnet', 'use testnet (mainnet is the default)')
     .option ('-n, --node <url>', 'set a custom node')
