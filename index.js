@@ -312,20 +312,37 @@ pr.command ('voters <delegate>').action ((delegate) => {
 });
 
 /* Balance */
-pr.command ('balance <address>').action ((address) => {
+pr.command ('balance <address|delegate>').action ((address) => {
     let testnet = pr.testnet || false;
     let node = pr.node || (testnet ? 'https://testnet.lisk.io' : 'https://liskworld.info');
     let lsk = lisk.api ({testnet: testnet});
 
-    request.get ({
-        uri: node + '/api/accounts/getBalance?address=' + address,
-        json: true
-    }).then (data => {
-        console.log (data.balance / Math.pow (10, 8));
-        process.exit (0);
+
+    getDelegate (node, address)
+    .then (delob => {
+        var address = delob.address || address;
+
+        request.get ({
+            uri: node + '/api/accounts/getBalance?address=' + address,
+            json: true
+        }).then (data => {
+            console.log (data.balance / Math.pow (10, 8));
+            process.exit (0);
+        }).catch (err => {
+            console.log (`Error: ${err}`);
+            process.exit (0);
+        });
     }).catch (err => {
-        console.log (`Error: ${err}`);
-        process.exit (0);
+        request.get ({
+            uri: node + '/api/accounts/getBalance?address=' + address,
+            json: true
+        }).then (data => {
+            console.log (data.balance / Math.pow (10, 8));
+            process.exit (0);
+        }).catch (err => {
+            console.log (`Error: ${err}`);
+            process.exit (0);
+        });
     });
 });
 
